@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Avatar Interativo</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+
+    <body class="bg-gray-200 h-screen flex items-center justify-center">
+        <button id="startButton" class="mb-4 bg-blue-500 text-white px-4 py-2 rounded" onclick="initialize()">Iniciar
+            conversa</button>
+        <canvas id="audioVisualizer" class="bg-white p-6 rounded-lg shadow-lg w-96 h-48" style="display: none;"></canvas>
+        <footer class="fixed bottom-0 left-0 w-full border-t p-4 text-center">
+            Criado por Matheus Dourado <i class="fas fa-heart ml-2"></i>
+        </footer>
+        <script src="script.js"></script>
+    </body>
+</html>
