@@ -3,11 +3,12 @@ let analyser;
 let isRecognizing = false;
 let isSpeaking = false;
 let messages = [];
+let shouldWaitForCodePaste = false;
+let initialTranscript = "";
 
 function initialize() {
     hideElement('startButton');
     showElement('audioVisualizer');
-
     setupAudioContext();
     startListening();
     draw();
@@ -35,9 +36,48 @@ function setupAudioContext() {
 }
 
 function startListening() {
-    if (isSpeaking) return;
+    if (isSpeaking || isRecognizing) return;
     isRecognizing = true;
     recognition.start();
+}
+
+// 1. Capturar imagem colada pelo usuário.
+document.addEventListener('paste', async (event) => {
+    if (!shouldWaitForCodePaste) return;
+
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (let index in items) {
+        let item = items[index];
+        if (item.kind === 'file') {
+            const blob = item.getAsFile();
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                try {
+                    drawLoading();
+                    const codeText = await imageToCode(event.target.result);
+                    console.log("codeText ", codeText);
+
+                    processTranscript(initialTranscript + " " + codeText);
+                    shouldWaitForCodePaste = false;
+                    initialTranscript = "";
+                    
+                    setTimeout(() => {
+                        startListening(); 
+                    }, 500); 
+                } catch (error) {
+                    console.error('Erro ao processar imagem:', error);
+                }
+            };
+            reader.readAsDataURL(blob);
+        }
+    }
+});
+
+
+async function imageToCode(imageDataUrl) {
+    const result = await Tesseract.recognize(imageDataUrl, 'eng', { logger: m => console.log(m) });
+    console.log("Resultado completo do OCR:", result); 
+    return result.text;
 }
 
 const canvas = document.getElementById('audioVisualizer');
@@ -52,8 +92,18 @@ recognition.interimResults = false;
 recognition.onresult = async (event) => {
     const transcript = event.results[0][0].transcript.trim();
     console.log("Você disse:", transcript);
-    processTranscript(transcript);
+
+    if (transcript.includes("revisar um código") || transcript.includes("verificar esse trecho") || transcript.includes("código")) {
+        console.log("if");
+        recognition.stop();  // <---- Adicione esta linha.
+        shouldWaitForCodePaste = true;
+        initialTranscript = transcript;
+    } else {
+        console.log("else");
+        processTranscript(transcript);
+    }
 };
+
 
 async function processTranscript(transcript) {
     if (isSystemMessage(transcript)) return;
@@ -62,7 +112,7 @@ async function processTranscript(transcript) {
 
     try {
         const response = await askGPT3(transcript);
-        messages.push({ role: 'system', content: response }); // Adicione a resposta ao histórico
+        messages.push({ role: 'system', content: response }); 
         speak(response);
     } catch (error) {
         console.error("Erro ao comunicar-se com o GPT-3:", error);
@@ -81,7 +131,7 @@ async function askGPT3() {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
-                Authorization: "Bearer API-TOKEN"
+                Authorization: "Bearer API-KEY"
             },
             body: JSON.stringify({
                 model: "gpt-4",
@@ -92,9 +142,10 @@ async function askGPT3() {
         });
 
         const data = await response.json();
-        console.log(data);
-
+        
         if (data && data.choices && data.choices.length > 0) {
+            console.log("O Chat respondeu: ", data.choices[0].message.content.trim())
+
             return data.choices[0].message.content.trim();
         }
         return "Desculpe, não consegui gerar uma resposta.";
@@ -120,9 +171,27 @@ function speak(message) {
     const processedMessage = preprocessResponse(message); 
 
     drawLoading(); 
-    const synth = window.speechSynthesis;
+
     const utterance = new SpeechSynthesisUtterance(processedMessage); 
     utterance.lang = 'pt-BR';
+    
+    if (processedMessage.includes("?")) {
+        utterance.pitch = 1.2;
+        utterance.rate = 1.1;
+    } else if (processedMessage.includes("!")) {
+        utterance.pitch = 0.9;
+        utterance.rate = 1.3;
+    } else {
+        utterance.pitch = 1.0;
+        utterance.rate = 1.0;
+    }
+
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => voice.lang.includes('pt-BR')); 
+    
+    if (preferredVoice) {
+        utterance.voice = preferredVoice;
+    }
 
     utterance.onstart = () => {
         isSpeaking = true;
@@ -135,12 +204,8 @@ function speak(message) {
         startListening();
     };
 
-    synth.speak(utterance);
+    window.speechSynthesis.speak(utterance);
 }
-
-recognition.onerror = (event) => {
-    console.error("Erro de reconhecimento:", event.error);
-};
 
 recognition.onend = () => {
     isRecognizing = false;
@@ -161,7 +226,7 @@ function draw() {
         canvasContext.fillStyle = 'white';
         canvasContext.fillRect(0, 0, canvas.width, canvas.height);
         canvasContext.lineWidth = 2;
-        canvasContext.strokeStyle = 'black';
+        canvasContext.strokeStyle = '#236E8C';
         canvasContext.beginPath();
 
         const sliceWidth = canvas.width / dataArray.length;
@@ -183,6 +248,7 @@ function draw() {
         canvasContext.lineTo(canvas.width, canvas.height / 2);
         canvasContext.stroke();
     }
+
     requestAnimationFrame(draw);
 }
 
@@ -205,7 +271,7 @@ function drawLoading() {
 
         canvasContext.beginPath();
         canvasContext.arc(x, y, dotRadius, 0, 2 * Math.PI);
-        canvasContext.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+        canvasContext.fillStyle = `rgba(2, 73, 89, ${alpha})`;
         canvasContext.fill();
     }
 

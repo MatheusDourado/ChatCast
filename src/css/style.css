@@ -1,0 +1,37 @@
+:root {
+    --color-f2f2f2: #F2F2F2;
+    --color-a2eaf2: #A2EAF2;
+    --color-71ced9: #71CED9;
+    --color-024959: #024959;
+    --color-236e8c: #236E8C;
+}
+
+body {
+    background-color: var(--color-f2f2f2);
+}
+
+#particles-js {
+    position: fixed;
+    z-index: -1;
+}
+
+.start-button {
+    background-color: var(--color-71ced9);
+    color: var(--color-f2f2f2);
+}
+
+.start-button:hover {
+    background-color: var(--color-236e8c);
+}
+
+.audio-visualizer {
+    background-color: white
+}
+
+footer {
+    color: var(--color-024959);
+}
+
+footer .fas .fa-heart {
+    color: var(--color-236E8C);
+}
