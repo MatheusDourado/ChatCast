@@ -131,7 +131,7 @@ async function askGPT3() {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
-                Authorization: "Bearer API-KEY"
+                Authorization: "Bearer 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"
             },
             body: JSON.stringify({
                 model: "gpt-4",
