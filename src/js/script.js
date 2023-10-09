@@ -126,12 +126,11 @@ function isSystemMessage(transcript) {
 
 async function askGPT3() {
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('https://chat-cast.vercel.app/api/openai', {  // Note a nova URL
             method: "POST",
             headers: {
                 Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: "Bearer API-KEY"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 model: "gpt-4",
@@ -145,7 +144,6 @@ async function askGPT3() {
         
         if (data && data.choices && data.choices.length > 0) {
             console.log("O Chat respondeu: ", data.choices[0].message.content.trim())
-
             return data.choices[0].message.content.trim();
         }
         return "Desculpe, não consegui gerar uma resposta.";
