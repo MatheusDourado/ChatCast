@@ -28,5 +28,7 @@ Este projeto permite que o usuário interaja por voz, solicitando uma revisão d
 
 **Tecnologias Utilizadas**
 + JavaScript
++ Fetch
 + Tesseract OCR
-
++ Tailwind
++ ParticlesJS
