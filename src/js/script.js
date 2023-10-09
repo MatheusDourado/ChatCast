@@ -126,7 +126,8 @@ function isSystemMessage(transcript) {
 
 async function askGPT3() {
     try {
-        const response = await fetch('https://chat-cast.vercel.app/api/openai', {  // Note a nova URL
+        // Efetuando a requisição
+        const response = await fetch('https://chat-cast.vercel.app/api/openai', {
             method: "POST",
             headers: {
                 Accept: "application/json",
@@ -140,16 +141,32 @@ async function askGPT3() {
             })
         });
 
-        const data = await response.json();
-        
-        if (data && data.choices && data.choices.length > 0) {
-            console.log("O Chat respondeu: ", data.choices[0].message.content.trim())
-            return data.choices[0].message.content.trim();
+        // Verificando status da resposta
+        if (!response.ok) {
+            console.error("Erro no servidor:", response.status);
+            throw new Error("Failed to fetch from server");
         }
-        return "Desculpe, não consegui gerar uma resposta.";
+
+        // Parsing da resposta
+        const data = await response.json();
+
+        // Logs de depuração
+        console.log("Response Status:", response.status);
+        console.log("Response Data:", data);
+
+        // Processando a resposta
+        if (data && data.choices && data.choices.length > 0) {
+            console.log("O Chat respondeu: ", data.choices[0].message.content.trim());
+            return data.choices[0].message.content.trim();
+        } else {
+            console.warn("Resposta inesperada:", data);
+            return "Desculpe, não consegui gerar uma resposta.";
+        }
 
     } catch (error) {
+        // Tratando diferentes tipos de erros
         if (error.response && error.response.status === 429) {
+            console.warn("Limite de solicitações atingido:", error);
             return "Estou recebendo muitas solicitações no momento. Por favor, tente novamente mais tarde.";
         }
         console.error("Erro ao solicitar ao GPT-4:", error);
