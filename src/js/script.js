@@ -127,7 +127,7 @@ function isSystemMessage(transcript) {
 async function askGPT3() {
     try {
         // Efetuando a requisição
-        const response = await fetch('https://chat-cast.vercel.app/api/openai', {
+        const response = await fetch('https://chatcast-backend.onrender.com', {
             method: "POST",
             headers: {
                 Accept: "application/json",
