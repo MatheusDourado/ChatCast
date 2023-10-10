@@ -127,7 +127,7 @@ function isSystemMessage(transcript) {
 async function askGPT3() {
     try {
         // Efetuando a requisição
-        const response = await fetch('https://chatcast-backend.onrender.com', {
+        const response = await fetch('https://chatcast-backend.onrender.com/ask', {
             method: "POST",
             headers: {
                 Accept: "application/json",
