@@ -176,6 +176,7 @@ async function askGPT3() {
         }
 
     } catch (error) {
+        // Tratando diferentes tipos de erros
         if (error.response && error.response.status === 429) {
             console.warn("Limite de solicitações atingido:", error);
             return "Estou recebendo muitas solicitações no momento. Por favor, tente novamente mais tarde.";
