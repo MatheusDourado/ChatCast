@@ -15,6 +15,10 @@ body {
     z-index: -1;
 }
 
+#startRecognitionButton {
+    display: none;
+}
+
 .start-button {
     background-color: var(--color-71ced9);
     color: var(--color-f2f2f2);

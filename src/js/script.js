@@ -7,6 +7,14 @@ let shouldWaitForCodePaste = false;
 let initialTranscript = "";
 
 function initialize() {
+    console.log("Inicializando a função de escuta...");
+
+    if (window.innerWidth <= 600) {
+        showElement('startRecognitionButton');
+    } else {
+        hideElement('startRecognitionButton');
+    }
+
     hideElement('startButton');
     showElement('audioVisualizer');
     setupAudioContext();
@@ -20,6 +28,14 @@ function hideElement(id) {
 
 function showElement(id) {
     document.getElementById(id).style.display = 'block';
+}
+
+function startMobileListening() {
+    console.log("Iniciando a escuta via botão...");
+
+    if (!isSpeaking) {
+        startListening();
+    }
 }
 
 function setupAudioContext() {
@@ -41,7 +57,6 @@ function startListening() {
     recognition.start();
 }
 
-// 1. Capturar imagem colada pelo usuário.
 document.addEventListener('paste', async (event) => {
     if (!shouldWaitForCodePaste) return;
 
@@ -76,7 +91,6 @@ document.addEventListener('paste', async (event) => {
 
 async function imageToCode(imageDataUrl) {
     const result = await Tesseract.recognize(imageDataUrl, 'eng', { logger: m => console.log(m) });
-    console.log("Resultado completo do OCR:", result); 
     return result.text;
 }
 
@@ -94,14 +108,20 @@ recognition.onresult = async (event) => {
     console.log("Você disse:", transcript);
 
     if (transcript.includes("revisar um código") || transcript.includes("verificar esse trecho") || transcript.includes("código")) {
-        console.log("if");
-        recognition.stop();  // <---- Adicione esta linha.
+        recognition.stop();
         shouldWaitForCodePaste = true;
         initialTranscript = transcript;
     } else {
-        console.log("else");
         processTranscript(transcript);
     }
+};
+
+recognition.onerror = (event) => {
+    console.error("Erro na Recognition:", event);
+};
+
+recognition.onstart = () => {
+    console.log("Recognition começou!");
 };
 
 
@@ -126,7 +146,6 @@ function isSystemMessage(transcript) {
 
 async function askGPT3() {
     try {
-        // Efetuando a requisição
         const response = await fetch('https://chatcast-backend.onrender.com/ask', {
             method: "POST",
             headers: {
@@ -141,20 +160,13 @@ async function askGPT3() {
             })
         });
 
-        // Verificando status da resposta
         if (!response.ok) {
             console.error("Erro no servidor:", response.status);
             throw new Error("Failed to fetch from server");
         }
 
-        // Parsing da resposta
         const data = await response.json();
 
-        // Logs de depuração
-        console.log("Response Status:", response.status);
-        console.log("Response Data:", data);
-
-        // Processando a resposta
         if (data && data.choices && data.choices.length > 0) {
             console.log("O Chat respondeu: ", data.choices[0].message.content.trim());
             return data.choices[0].message.content.trim();
@@ -223,6 +235,7 @@ function speak(message) {
 }
 
 recognition.onend = () => {
+    console.log("Recognition terminou!");
     isRecognizing = false;
     if (!isSpeaking) {
         startListening();
