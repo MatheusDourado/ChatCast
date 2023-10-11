@@ -14,16 +14,19 @@
         <link rel="icon" type="image/png" sizes="192x192" href="images/android-chrome-192x192.png">
         <link rel="icon" type="image/png" sizes="512x512" href="images/android-chrome-512x512.png">
         <link rel="stylesheet" href="src/css/style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
         <meta name="msapplication-TileImage" content="logo.jpg">
-
-        
     </head>
 
     <body class="h-screen flex flex-col items-center justify-center">
         <div id="particles-js" class="absolute top-0 left-0 w-full h-full"></div>
 
-        <button id="startButton" class="mb-4 px-4 py-2 rounded font-semibold start-button" onclick="initialize()">Iniciar conversa</button>
-        <canvas id="audioVisualizer" class="p-6 rounded-lg shadow-lg w-96 h-48 audio-visualizer" style="display: none;"></canvas>
+        <main class="relative">
+            <button id="startButton" class="mb-4 px-4 py-2 rounded font-semibold start-button" onclick="initialize()">Conversar</button>
+            <canvas id="audioVisualizer" class="p-6 rounded-lg shadow-lg w-96 h-48 audio-visualizer" style="display: none;"></canvas>
+            <button id="startRecognitionButton" class="absolute right-8 top-3/4 mt-3  text-xl p-3 text-white rounded-full shadow-lg w-16 h-16 start-button" onclick="startMobileListening()"><i class="fa-solid fa-microphone"></i></button>
+        </main>
+        
         <footer class="fixed bottom-0 left-0 w-full p-4 text-center font-semibold">
             Criado por Matheus Dourado <i class="fas fa-heart ml-2"></i>
         </footer>
